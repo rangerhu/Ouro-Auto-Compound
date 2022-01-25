@@ -9,11 +9,11 @@
 
    初版的auto compound定义为:
 
-   **auto ogs pool中，每当有用户执行withdraw或deposit操作，清算并当前pool中所有用户，并触发当前pool中所有用户的compound**
+   **auto ogs pool中，每当有用户执行withdraw或deposit方法，清算并当前pool中所有用户，并触发当前pool中所有用户的compound**
 
    *(注:compound的效果与auto ogs池的社区用户参与活跃程度正相关,极端情况当auto ogs池后续没有活跃社区用户时,无compound效果,即与manual的效果相同)*
 
-4. 当用户执行deposit操作后，用户资金押入pool中开启auto compound；当用户执行deposi操作时，结算用户目前的所有收益
+4. 当用户执行deposit方法后，用户资金质押入pool中开启auto compound；当用户执行deposit方法时，取出质押的部分本金利息
 
-5. 因为用户在执行外部操作时将进行pool中所有用户的清算并执行所有用户的compound，由是claimRewards没有任何意义，返回值始终为0，即用户的利息已经变为质押的本金，如果要取出，因为采用withdraw来取出质押的本金利息
+5. 因为用户在执行外部操作时将进行pool中所有用户的清算并执行所有用户的compound，由是claimRewards没有任何意义，返回值始终为0，即用户的利息已经变为质押的本金，如果用户要取出资产，应采用withdraw方法来取出质押的本金利息
 
