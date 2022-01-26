@@ -1,9 +1,4 @@
 
-
-
-
-
-
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.12;
@@ -22,10 +17,12 @@ contract LPStaking is Ownable, ReentrancyGuard,Pausable {
     //==改动开始==
     ///assetContract 即用户的质押资产固定为ogs 
     ///auto compound tg上甲方定义为质押ogs生出ogs
-    address public constant assetContract=0x416947e6Fc78F158fd9B775fA846B72d768879c2; // the asset to stake
+    // address public constant assetContract = 0x416947e6Fc78F158fd9B775fA846B72d768879c2; // the asset to stake
     //==改动结束==
 
-    address public constant ogsContract = 0x416947e6Fc78F158fd9B775fA846B72d768879c2;
+    address public assetContract;
+    address public ogsContract;
+    // address public constant ogsContract = 0x416947e6Fc78F158fd9B775fA846B72d768879c2;
 
     mapping (address => uint256) private _balances; // tracking staker's value
    
@@ -58,11 +55,11 @@ contract LPStaking is Ownable, ReentrancyGuard,Pausable {
      */
     //==改动开始==
     ///assetContract即质押资产固定为ogs,由此不需要构造函数
-    // constructor(address assetContract_) public {
-    //     require(assetContract_ != address(0), "constructor： assetContract_ is zero address");
-
-    //     assetContract = assetContract_; 
-    // }
+    constructor(address _ogsContract) public {
+        require(_ogsContract != address(0), "constructor： assetContract_ is zero address");
+        ogsContract = _ogsContract;
+        assetContract = _ogsContract; 
+    }
     //==改动结束==
         
     /**
@@ -114,10 +111,8 @@ contract LPStaking is Ownable, ReentrancyGuard,Pausable {
         _numStaker += 1; //add a staker
         
         //==改动结束==
-
         // transfer asset from AssetContract
         IERC20(assetContract).safeTransferFrom(msg.sender, address(this), amount);
-        
         // log
         emit Deposit(msg.sender, amount);
     }
