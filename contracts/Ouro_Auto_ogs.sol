@@ -44,7 +44,7 @@ contract LPStaking is Ownable, ReentrancyGuard,Pausable {
     /// @dev a monotonic increasing round index, STARTS FROM 1
     uint256 private _currentRound = 1;
     // @dev last rewarded block
-    uint256 private _lastRewardBlock = block.number;
+    uint256 public _lastRewardBlock = block.number;
     
     /**
      * ======================================================================================
@@ -273,7 +273,7 @@ contract LPStaking is Ownable, ReentrancyGuard,Pausable {
     /**
      * @notice sum unclaimed reward;
      */
-    function checkReward(address account) external view returns(uint256 rewards) {
+    function checkUncompoundReward(address account) external view returns(uint256 rewards) {
         uint accountCollateral = _balances[account];
         uint lastSettledRound = _settledRounds[account];
         
@@ -303,6 +303,6 @@ contract LPStaking is Ownable, ReentrancyGuard,Pausable {
      */
      event Deposit(address account, uint256 amount);
      event Withdraw(address account, uint256 amount);
-     event OGSClaimed(address account, uint256 amount);
+    //  event OGSClaimed(address account, uint256 amount);
      event BlockRewardSet(uint256 reward);
 }
