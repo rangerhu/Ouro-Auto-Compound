@@ -31,14 +31,14 @@ contract AutoCompound is Ownable, ReentrancyGuard,Pausable {
     uint256 internal constant SHARE_MULTIPLIER = 1e18; // share multiplier to avert division underflow
     
     address public immutable assetContract; // the asset to invest -> ogs
-    address public constant ogsContract = 0x416947e6Fc78F158fd9B775fA846B72d768879c2;
+    // address public constant ogsContract = 0x416947e6Fc78F158fd9B775fA846B72d768879c2;
 
     
     mapping(address => uint256) private clientShareNum; // tracking the number of shares own by investment agent clients 
     uint256 private totalClientShareNum = 0; // track the total shares given by investment agent 
     uint256 private lastHarvestedTime; // track the latest harvest timesteamp
     
-    iLPStaking private immutable lpstaking;
+    address private lpstaking;
     
 
 
@@ -257,6 +257,23 @@ contract AutoCompound is Ownable, ReentrancyGuard,Pausable {
     }
 
 
+
+    /**
+     * @dev return the price(ogs) per share(given by agent) 
+     */
+    function getOgsPerAgentShare() external view returns (uint256) {
+        // balanceOf() include agent's staked and uncompound ogs balance
+        return totalClientShareNum == 0 ? SHARE_MULTIPLIER : balanceOf().mul(SHARE_MULTIPLIER).div(totalClientShareNum);
+    }
+
+
+
+    /**
+     * @dev return the current shares own by client 
+     */
+    function getClintCurrentShare(address account) external view returns (uint256) { 
+        return clientShareNum[account];
+    }
 
    
     

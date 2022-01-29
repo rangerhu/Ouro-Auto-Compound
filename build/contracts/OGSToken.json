@@ -7011,7 +7011,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.4",
-  "updatedAt": "2022-01-29T14:38:02.189Z",
+  "updatedAt": "2022-01-29T15:02:17.176Z",
   "devdoc": {
     "events": {
       "Mintable(address)": {
