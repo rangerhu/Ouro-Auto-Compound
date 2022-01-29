@@ -6,8 +6,8 @@ const OGSToken = function(value){
     return value * 10 ** 0;
 }
 
-contract("LPStaking",async accounts =>{
-    it("LPStakingTest",async()=>{
+contract("AutoCompound",async accounts =>{
+    it("AutoCompoundTest",async()=>{
         const skipBlocks = async function(blockCount) {
             for (var i = 0; i < blockCount; ++i) {
                 await web3.eth.sendTransaction({ from: accounts[3], to: accounts[3], value: 1});
