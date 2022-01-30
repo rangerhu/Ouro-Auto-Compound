@@ -153,8 +153,10 @@ contract AutoCompound is Ownable, ReentrancyGuard,Pausable {
         // convert client deposit into shares(client can withdraw share and convert share into ogs)
         // inital current client shares number as 0
         uint256 currentClientShareNum = 0;
-        // calculate the number of current client shares given by agent 
+        //  calculate the number of current client shares given by agent
+        //  the same way whow pancake auto pool calculate the share
         if (totalClientShareNum != 0) {
+            // There may exists computational accuracy issues ,however pancake auto pool accept it, not sure whether we accept it or not
             currentClientShareNum = (amount.mul(totalClientShareNum)).div(agentPool);
         } else {
             currentClientShareNum = amount;
@@ -180,6 +182,8 @@ contract AutoCompound is Ownable, ReentrancyGuard,Pausable {
         require(shares <= clientShareNum[msg.sender], "balance exceeded");
 
         // calculate client's withdraw share worth how much ogs
+        // There may exists computational accuracy issues ,however pancake auto pool accept it, not sure whether we accept it or not
+        // the emedial measurement is taken at line 210
         uint256 withdrawShareWorth = (balanceOf().mul(shares)).div(totalClientShareNum);
 
         // update the number of current client shares
@@ -202,7 +206,7 @@ contract AutoCompound is Ownable, ReentrancyGuard,Pausable {
             // agent's uncompound ogs after withdraw from lpstaking pool
             uint256 balAfter = available();
             uint256 diff = balAfter.sub(bal);
-            // if withdraw still can't fill the vacancy, change client withdrawShareWorth
+            // if withdraw still can't fill the vacancy,it might be the computational accuracy issues, remedying by changing client withdrawShareWorth
             if (diff < balWithdraw) {
                 withdrawShareWorth  = bal.add(diff);
             }
@@ -249,16 +253,7 @@ contract AutoCompound is Ownable, ReentrancyGuard,Pausable {
 
 
     /**
-     * @dev return the price(ogs) per share(given by agent) 
-     */
-    function getOgsPerAgentShare() external view returns (uint256) {
-        // balanceOf() include agent's staked and uncompound ogs balance
-        return totalClientShareNum == 0 ? SHARE_MULTIPLIER : balanceOf().mul(SHARE_MULTIPLIER).div(totalClientShareNum);
-    }
-
-
-
-    /**
+     * @notice return result multiplied SHARE_MULTIPLIER
      * @dev return the price(ogs) per share(given by agent) 
      */
     function getOgsPerAgentShare() external view returns (uint256) {

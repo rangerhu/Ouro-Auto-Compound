@@ -1,19 +1,25 @@
 # Ouro Auto Compound
 
-#### 初版介绍
-1. 目前的auto compound是质押ogs，赚取ogs
+#### 第二版介绍（采用与pancake完全相同的auto compound解决方案）
+1. 将质押资产投资复利与用户利润分配的代码逻辑区分开
 
-2. assetContract即质押资产固定为ogs，由此Ouro_Auto_ogs合约设定为不需要构造函数
+2. lp_stacking.sol 部署ogs质押池, auto_ogs.sol链接该质押池
 
-3. 由于solidity的特性，关于什么时候把用户的利息拿去compound(即用户积攒到何时的利息再拿去投资)，必须得有外部触发机制
+3. 仅新增Auto_ogs.sol，[library.sol，lp_stacking.sol，ogs.sol都沿用Ouro源码仓库中的代码]
 
-   初版的auto compound定义为:
+   ![第二版代码思路](\第二版代码思路.png)
 
-   **auto ogs pool中，每当有用户执行withdraw或deposit方法，清算并当前pool中所有用户，并触发当前pool中所有用户的compound**
+   ​                                                                                        **图1 第二版整体思路(采用pancake auto compound实现思路)**
 
-   *(注:compound的效果与auto ogs池的社区用户参与活跃程度正相关,极端情况当auto ogs池后续没有活跃社区用户时,无compound效果,即与manual的效果相同)*
+4. 第二版的整体思想如图1所示，参考pancake auto compound的模式，auto_ogs.sol的作用相当于一个investment agent，参与auto compound的用户相当于client
 
-4. 当用户执行deposit方法后，用户资金质押入pool中开启auto compound；当用户执行deposit方法时，取出质押的部分本金利息
+   **质押资产投资复利：**agent收取client的ogs，将client的ogs整合在一起，以agent的名义质押到ogs质押池中，并定期(需要机器人定期触发auto_ogs.sol中的harvest函数) 进行复投 (compound)
 
-5. 因为用户在执行外部操作时将进行pool中所有用户的清算并执行所有用户的compound，由是claimRewards没有任何意义，返回值始终为0，即用户的利息已经变为质押的本金，如果用户要取出资产，应采用withdraw方法来取出质押的本金利息
+   **用户利润分配：**agent 在收取client的ogs时，会分配给客户share以记账client，每个client持有的share数量仅在client再次参与auto pool投资给agent ogs时才会增加，否则client持有的share数量恒定不变，这里的share可以理解为把agent的投资本息依据当前share总量平均分块，client参与时是兑换当前时刻agent投资本息依据当前share总量平均分块价值的share数量，client在取款时用户的可支配share数量不变，但share的价值已经发生变化，当前share价值计算公式如下(对应auto_ogs.sol中getOgsPerAgentShare()接口)：
+
+   OgsPerAgentShare = balanceOfAgentInvestment / totalShareNum
+
+5.  具体的代码逻辑都阐述在Auto_ogs.sol的注释中
+
+   
 
