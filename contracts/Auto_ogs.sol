@@ -104,6 +104,7 @@ contract AutoCompound is Ownable, ReentrancyGuard,Pausable {
     function _earn() internal {
         uint256 bal = available();
         if (bal > 0) {
+            IERC20(assetContract).approve(lpstaking, bal);
             iLPStaking(lpstaking).deposit(bal);
         }
     }
@@ -115,7 +116,6 @@ contract AutoCompound is Ownable, ReentrancyGuard,Pausable {
      */
     function harvest() external nonReentrant whenNotPaused {
         iLPStaking(lpstaking).claimRewards();
-
         _earn();
 
         lastHarvestedTime = block.timestamp;
@@ -149,7 +149,7 @@ contract AutoCompound is Ownable, ReentrancyGuard,Pausable {
 
         // transfer ogs from client to agent 
         IERC20(assetContract).safeTransferFrom(msg.sender, address(this), amount);
-
+        
         // convert client deposit into shares(client can withdraw share and convert share into ogs)
         // inital current client shares number as 0
         uint256 currentClientShareNum = 0;
@@ -222,7 +222,44 @@ contract AutoCompound is Ownable, ReentrancyGuard,Pausable {
      * @dev withdraw client's all shares from agent and agent return client shares worth ogs
      */
     function clientWithdrawAll() external nonReentrant{
-        clientWithdraw(clientShareNum[msg.sender]);
+        uint256 shares = clientShareNum[msg.sender];
+        require(shares > 0, "nothing to withdraw");
+        require(shares <= clientShareNum[msg.sender], "balance exceeded");
+
+        // calculate client's withdraw share worth how much ogs
+        // There may exists computational accuracy issues ,however pancake auto pool accept it, not sure whether we accept it or not
+        // the emedial measurement is taken at line 210
+        uint256 withdrawShareWorth = (balanceOf().mul(shares)).div(totalClientShareNum);
+
+        // update the number of current client shares
+        clientShareNum[msg.sender] -= shares;
+        // update agent's total client share number
+        totalClientShareNum -= shares;
+
+
+        // agent return client shares worth ogs
+        // agent's uncompound ogs balance
+        uint256 bal = available();
+        // if agent's uncompound ogs balance is enough to cover clent withdrawShareWorth ogs then withdraw ogs from agent's uncompound ogs
+        // else agent withdraw staking balance from lpstaking pool to fill up client withdraw vacancy
+        // agent's uncompound ogs balance can't cover withdrawShareWorth ogs scenario
+        if (bal < withdrawShareWorth) {
+            // client withdraw vacancy
+            uint256 balWithdraw = withdrawShareWorth.sub(bal);
+            // agent withdraw the vacancy from lpstaking pool
+            iLPStaking(lpstaking).withdraw(balWithdraw);
+            // agent's uncompound ogs after withdraw from lpstaking pool
+            uint256 balAfter = available();
+            uint256 diff = balAfter.sub(bal);
+            // if withdraw still can't fill the vacancy,it might be the computational accuracy issues, remedying by changing client withdrawShareWorth
+            if (diff < balWithdraw) {
+                withdrawShareWorth  = bal.add(diff);
+            }
+        }
+        // transfer client withdraw share worth ogs 
+        IERC20(assetContract).safeTransfer(msg.sender, withdrawShareWorth);
+
+        emit ClientWithdraw(msg.sender,withdrawShareWorth,shares,clientShareNum[msg.sender]);
         
     }
 
@@ -275,7 +312,7 @@ contract AutoCompound is Ownable, ReentrancyGuard,Pausable {
     /**
      * ======================================================================================
      * 
-     * STAKING EVENTS
+     * AUTO COMPOUND EVENTS
      *
      * ======================================================================================
      */
