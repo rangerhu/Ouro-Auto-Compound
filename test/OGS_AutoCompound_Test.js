@@ -1,7 +1,7 @@
-const ouraogs = artifacts.require("LPStaking");
+const ouraogs = artifacts.require("LPStaking"); // pool contract 
 // const BN = require("bn.js");
-const OGS = artifacts.require("OGSToken");
-const autocompound = artifacts.require("AutoCompound");
+const OGS = artifacts.require("OGSToken");      // ogs contract 
+const autocompound = artifacts.require("AutoCompound");  //auto compound contract
 let BigNumber = require('bignumber.js');
 
 
@@ -41,22 +41,21 @@ contract("AutoCompound",async accounts =>{
         assert.equal(OGSToken(10000-1000-1000-1000-1000),owerOSG.toNumber());
 
         //初始化lpstaking
-        console.log("---部署ogs质押池......---")
+        console.log("---部署ogs质押池......---");
         let blockReward = 15;
         lpstaking = await ouraogs.new(ogstoken.address);
-        console.log("---ogs质押池部署完毕---")
+        console.log("---ogs质押池部署完毕---");
         await lpstaking.setBlockReward(blockReward);
-        console.log("---初始化BlockReward为15---")
-        console.log("")
+        console.log("---初始化BlockReward为15---");
+        console.log("");
 
         //部署auto compound合约
-        console.log("---部署auto compound合约......---")
+        console.log("---部署auto compound合约......---");
         autoogs = await autocompound.new(ogstoken.address,lpstaking.address);
-        console.log("---auto compound合约部署完毕---")
-        console.log("")
+        console.log("---auto compound合约部署完毕---");
+        console.log("");
 
-        //设置质押池为mintable
-        await ogstoken.setMintable(lpstaking.address,true);
+ 
 
 
 
