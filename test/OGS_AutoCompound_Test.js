@@ -56,7 +56,8 @@ contract("AutoCompound",async accounts =>{
         console.log("");
 
  
-
+        //设置质押池为mintable
+        await ogstoken.setMintable(lpstaking.address,true);
 
 
         
@@ -321,10 +322,6 @@ contract("AutoCompound",async accounts =>{
         console.log("")
         console.log("")
         console.log("")
-
-
-
-
 
 
 
