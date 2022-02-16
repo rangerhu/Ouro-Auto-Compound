@@ -5,7 +5,7 @@
 
 
 
-![compound触发方案图](C:/Users/RangerHu/Desktop/Ouro Auto Compound/github版本/new/compound触发方案图.png)
+![compound触发方案图](./compound触发方案图.png)
 
 **Bounty:**
 
