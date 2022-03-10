@@ -177,7 +177,7 @@ contract AutoCompound is Ownable, ReentrancyGuard,Pausable {
      * @notice input value is the number of shares client want to withdraw rather than ogs amount, different with deposit function 
      * @dev client withdraw shares from agent and agent return client shares worth ogs 
      */
-    function clientWithdraw(uint256 shares) public nonReentrant{
+    function clientWithdraw(uint256 shares) external nonReentrant{
         require(shares > 0, "nothing to withdraw");
         require(shares <= clientShareNum[msg.sender], "balance exceeded");
 
