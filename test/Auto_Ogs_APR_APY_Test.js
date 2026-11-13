@@ -14,8 +14,8 @@ contract("AutoOgsApy",async accounts =>{
         // Pool APR = Annualized rewards (ogs) / User funds staked in OGS Pool (ogs)  * 100 %
         const calculate_APR = async function(lpstaking, ogstoken, blockReward, blockPerSec) {
             
-            // 一年产生的区块个数
-            let blockPerYear = BigNumber(blockPerSec).multipliedBy(60).multipliedBy(24).multipliedBy(365);
+            // 一年产生的区块个数：每秒区块数 × 60秒 × 60分钟 × 24小时 × 365天
+            let blockPerYear = BigNumber(blockPerSec).multipliedBy(60).multipliedBy(60).multipliedBy(24).multipliedBy(365);
 
             // 一年的区块 ogs reward  
             let blockRewardPerYear = blockPerYear.multipliedBy(blockReward);
@@ -100,6 +100,18 @@ contract("AutoOgsApy",async accounts =>{
         // 测试ogs pool APR
         // 设定每秒产生2个区块
         let ogsPoolApr = await calculate_APR(lpstaking, ogstoken, blockReward, 2);
+        // 2 blocks/s × 31,536,000 seconds/year × 15 OGS/block / 20,000,000 OGS.
+        assert.equal(ogsPoolApr, 47.304, "APR should use all seconds in a 365-day year");
+        assert.equal(
+            await calculate_APR(lpstaking, ogstoken, blockReward, 0.25),
+            5.913,
+            "APR should support fractional blocks per second"
+        );
+        assert.equal(
+            await calculate_APR(lpstaking, ogstoken, 0, 2),
+            0,
+            "APR should be zero when the block reward is zero"
+        );
         console.log("APR for ogs pool ", ogsPoolApr * 100, "%");
 
         // 测试auto ogs pool APY
