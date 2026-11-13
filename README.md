@@ -1,5 +1,7 @@
 # Ouro Auto Compound
 
+[English documentation](./README_EN.md)
+
 #### 代码介绍（采用与pancake完全相同的auto compound解决方案）
 1. 将质押资产投资复利与用户利润分配的代码逻辑区分开
 
