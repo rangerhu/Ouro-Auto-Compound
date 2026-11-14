@@ -1,5 +1,7 @@
 # Ouro Auto Compound
 
+[中文文档](./README.md)
+
 #### Code Overview (Using the Same Auto Compound Solution as Pancake)
 1. Separate the code logic for compounding staked assets from that for distributing profits to users.
 
